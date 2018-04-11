@@ -1,0 +1,4 @@
+.kitchen/
+formulas/
+Gemfile.lock
+inspec.lock

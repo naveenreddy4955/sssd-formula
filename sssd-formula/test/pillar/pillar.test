@@ -1,0 +1,23 @@
+sssd:
+  pkg: 'sssd'
+  config_file: '/etc/sssd/sssd.conf'
+  service: 'sssd'
+  user: root
+  group: root
+  manage_config_file: True
+  manage_service: False
+  manage_authconfig: False
+  join_domain: False
+  domain_user: domuser
+  domain_password: asecret
+  domain: example.com
+  config:
+    options:
+      sssd:
+        config_file_version: 2
+        services: 'nss, pam'
+        domains: 'example.com'
+      'domain/example.com':
+        id_provider: 'ad'
+  authconfig:
+    args: '--enablesssd --enablesssdauth --update'

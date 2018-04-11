@@ -1,0 +1,53 @@
+---
+driver:
+  name: vagrant
+
+platforms:
+  - name: centos-7.3
+    provisioner:
+      grains:
+        os_family: RedHat
+        osmajorrelease: 7
+  - name: centos-6.9
+    provisioner:
+      # CentOS 6 still has Python 2.6 which is not supported by newer stable Salt releases
+      salt_bootstrap_options: -y -x python2.7 stable <%= ENV['TEST_KITCHEN_SALT_VERSION'] || '2017.7.2' %>
+
+provisioner:
+  name: salt_solo
+  is_file_root: false
+  formula: "sssd"
+  require_chef: false
+  salt_version: <%= ENV['TEST_KITCHEN_SALT_VERSION'] || '2017.7.2' %>
+  salt_copy_filter:
+    - .git
+    - .gitignore
+    - .gitattributes
+    - .kitchen
+    - .kitchen.yml
+    - .kitchen.azure.yml
+    - .yamllint
+    - test
+    - Gemfile
+    - Gemfile.lock
+    - README.rst
+    - CHANGELOG.rst
+    - LICENSE
+
+verifier:
+  name: inspec
+
+suites:
+  - name: sssd
+    provisioner:
+      pillars-from-files:
+        testpillar.sls: test/pillar/pillar.test
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - testpillar
+      state_top:
+        base:
+          '*':
+            - sssd

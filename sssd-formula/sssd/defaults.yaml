@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+sssd:
+  pkg: 'sssd'
+  config_file: '/etc/sssd/sssd.conf'
+  service: 'sssd'
+  user: root
+  group: root
+  manage_config_file: False
+  manage_service: False
+  manage_authconfig: False
+  join_domain: False
+  config:
+    options:
+      sssd:
+        config_file_version: 2
+        services: 'nss, pam'
+    'domain/localhost':
+      id_provider: 'ad'

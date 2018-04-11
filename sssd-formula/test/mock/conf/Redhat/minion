@@ -1,0 +1,10 @@
+grains:
+  os_family: RedHat
+
+file_roots:
+  base:
+    - ./
+
+pillar_roots:
+  base:
+    - ./

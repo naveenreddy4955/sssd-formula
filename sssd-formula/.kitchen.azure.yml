@@ -1,0 +1,65 @@
+---
+driver:
+  name: azurerm
+
+driver_config:
+  subscription_id: '<%= ENV['TEST_KITCHEN_SUBSCRIPTION'] %>'
+  location: '<%= ENV['TEST_KITCHEN_LOCATION'] %>'
+  machine_size: 'Standard_D1'
+  password: <%= ENV['TEST_KITCHEN_PASSWORD'] %>
+
+platforms:
+  - name: centos-73
+    driver_config:
+      image_urn: OpenLogic:CentOS:7.3:latest
+    provisioner:
+      init_environment: "echo <%= ENV['TEST_KITCHEN_PASSWORD'] %> | sudo -S sed -i 's/azure ALL=(ALL) ALL/azure ALL=(ALL) NOPASSWD:ALL/g' /etc/sudoers.d/waagent"
+      install_after_init_environment: True
+  - name: centos-69
+    driver_config:
+      image_urn: OpenLogic:CentOS:6.9:latest
+    provisioner:
+      init_environment: "echo <%= ENV['TEST_KITCHEN_PASSWORD'] %> | sudo -S sed -i 's/azure ALL=(ALL) ALL/azure ALL=(ALL) NOPASSWD:ALL/g' /etc/sudoers.d/waagent"
+      install_after_init_environment: True
+      # CentOS 6 still has Python 2.6 which is not supported by newer stable Salt releases
+      salt_bootstrap_options: -y -x python2.7 stable <%= ENV['TEST_KITCHEN_SALT_VERSION'] || '2017.7.2' %>
+
+
+provisioner:
+  name: salt_solo
+  is_file_root: false
+  formula: "sssd"
+  require_chef: false
+  salt_version: <%= ENV['TEST_KITCHEN_SALT_VERSION'] || '2017.7.2' %>
+  salt_copy_filter:
+    - .git
+    - .gitignore
+    - .gitattributes
+    - .kitchen
+    - .kitchen.yml
+    - .kitchen.azure.yml
+    - .yamllint
+    - test
+    - Gemfile
+    - Gemfile.lock
+    - README.rst
+    - CHANGELOG.rst
+    - LICENSE
+
+verifier:
+  name: inspec
+
+suites:
+  - name: sssd
+    provisioner:
+      pillars-from-files:
+        testpillar.sls: test/pillar/pillar.test
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - testpillar
+      state_top:
+        base:
+          '*':
+            - sssd

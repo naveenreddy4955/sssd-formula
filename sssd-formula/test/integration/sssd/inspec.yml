@@ -1,0 +1,4 @@
+name: sssd
+title: Tests for 'sssd' formula
+summary: Test the functionality of the 'sssd' formula
+version: 0.1.0
